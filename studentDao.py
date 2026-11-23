@@ -1,0 +1,50 @@
+import requests
+
+class StudentDao:
+
+    def __init__(self):
+        self.headers = {
+            "accept": "text/html,application/xhtml+xml,application/xml",
+            "accept-language": "en-GB,en-US",
+            "sec-fetch-dest": "document",
+            "user-agent": (
+                "Mozilla/5.0 (iPad; CPU OS 18_5 like Mac OS X) "
+                "AppleWebKit/605.1.15 (KHTML, like Gecko) "
+                "Version/18.5 Mobile/15E148 Safari/604.1"
+            ),
+        }
+
+        self.base_url = "https://oracleapex.com/ords/is22082/"
+        client_id = "7cyvcpfdn8tQkrezKYQLEA.."
+        client_secret = "6jBgOg2iHHaPJQg3rvPgsg.."
+
+        response = requests.post(
+            self.base_url + "oauth/token",
+            auth=(client_id, client_secret),
+            data={"grant_type": "client_credentials"},
+            headers=self.headers,
+            timeout=(10, 20),
+        )
+
+        self.token = None
+        if response.status_code == 200:
+            self.token = response.json()["access_token"]
+
+    def get_students(self):
+        response = requests.get(
+            self.base_url + "students/",
+            headers={
+                **self.headers,
+                "Authorization": f"Bearer {self.token}",
+            },
+            timeout=(10, 20),
+        )
+        data = response.json()["items"]
+        students = []
+        for student in data:
+            students.append([student["id"], student["name"]])
+        return students
+
+
+
+
