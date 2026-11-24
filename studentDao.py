@@ -2,6 +2,14 @@ import requests
 
 class StudentDao:
 
+    #When a StudentDao object is created, several things happen.
+    #The required headers are defined as a class member.
+    #The base URL is defined as a class member.
+    #An authentication token is generated and stored as a class member.
+    #The token is valid for an hour before expiring.
+    #The class members are available to all methods in the class.
+    #They are used to make requests to the Oracle APEX API.
+
     def __init__(self):
         self.headers = {
             "accept": "text/html,application/xhtml+xml,application/xml",
@@ -45,6 +53,28 @@ class StudentDao:
             students.append([student["id"], student["name"]])
         return students
 
+    def add_student(self,name):
+        name = name.strip()
+        if not name or len(name) > 100:
+            raise ValueError("Enter a name between 1 and 100 characters.")
+
+        # Insert the new student.
+        response = requests.post(
+            self.base_url + "students/",
+            headers={
+                **self.headers,
+                "Authorization": f"Bearer {self.token}",
+                "Content-Type": "application/json",
+            },
+            json={"name": name},
+            timeout=(10, 20),
+        )
+        return response.status_code
+
+"""
+select * from DEMO_STUDENT;
+insert into DEMO_STUDENT (NAME) values ('Derek');
+"""
 
 
 
